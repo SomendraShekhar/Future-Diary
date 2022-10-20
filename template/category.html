@@ -1,0 +1,35 @@
+{%extends 'base.html' %}
+
+{%block title%} Welcome To Future Diary {%endblock%}
+
+{%block content%}
+
+<div class="container py-5 ">
+
+    <h3>{{cat.title}}</h3>
+    <div class="img-container mb-3">
+        <img alt="" class="responsive-img" src="/media/{{cat.image}}"
+             style="max-height:450px;width:100%;object-fit:cover;">
+    </div>
+
+    <div class="collection">
+        <div class="row">
+            {%for p in posts %}
+            <div class="col-sm-4 col-lg-4">
+                <a class="collection-item" href="/Theory/{{p.url}}">{{p.title}}</a>
+            </div>
+            <div class="col-sm-8 col-lg-8">
+                <a class="collection-item" >{{p.content |truncatewords:60 | safe}}</a>
+            </div>
+            {% empty %}
+
+            <h3>No Theory In This Category</h3>
+
+            {%endfor%}
+        </div>
+    </div>
+
+
+</div>
+
+{%endblock%}

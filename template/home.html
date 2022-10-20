@@ -1,0 +1,67 @@
+{%extends 'base.html' %}
+
+{%block title%} Welcome to Future Diary {%endblock%}
+
+{%block content%}
+<div class="container-flex mb-2">
+    <div class="carousel slide mt-2 mb-3" data-ride="carousel" id="carouselExampleIndicators">
+        <ol class="carousel-indicators">
+            <li class="active" data-slide-to="0" data-target="#carouselExampleIndicators"></li>
+            <li data-slide-to="1" data-target="#carouselExampleIndicators"></li>
+            <li data-slide-to="2" data-target="#carouselExampleIndicators"></li>
+        </ol>
+        <div class="carousel-inner" style="height:19em;">
+            {% for cat in cats %}
+            <div class="carousel-item {% if forloop.counter0 == 0 %} active {% endif %}" style="width:100%;height:100%">
+                <img alt="..." class=" image-fluid d-block w-100"  src="/media/{{cat.image}}"
+                     style=object-fit:cover;">
+                <b><div style=" position: absolute;top: 80%;z-index: 2;left: 50%; color:green;transform: translate(-40%, -45%);"></b>
+                <h5 style="color: white;" >{{cat.description}}</h5>
+                    </div>
+            </div>
+            {%endfor%}
+        </div>
+        <a class="carousel-control-prev" data-slide="prev" href="#carouselExampleIndicators" role="button">
+            <span aria-hidden="true" class="carousel-control-prev-icon"></span>
+            <span class="sr-only">Previous</span>
+        </a>
+        <a class="carousel-control-next" data-slide="next" href="#carouselExampleIndicators" role="button">
+            <span aria-hidden="true" class="carousel-control-next-icon"></span>
+            <span class="sr-only">Next</span>
+        </a>
+    </div>
+
+    <div class="container mb-3">
+        <div class="row">
+            <div class="col ">
+                {% if not posts %}
+                <div class="row">
+                    <p style="font-size:2.7rem; padding-top:5%">Derive Theory On Your Desired Category</p>
+                </div>
+                {% else %}
+                <div class="row">
+                    {%for p in posts %}
+                    <div class="col-sm-6 col-lg-3 mb-2">
+                        <div class="card bg-dark text-white" style="height: 100%;width: 100%;">
+                            <div>
+                                <h5 class="card-title text-center mt-2">{{p.title}}</h5>
+                                <div class="card-text ml-2 mr-2" >{{p.content |truncatewords:30 | safe}}</div>
+                                <a class="text-muted text-center ml-2" href="/Theory/{{p.url}}">Read More...</a>
+                                {% if user.is_authenticated %}
+                                {% if inEditMode %}
+                                <a class="btn btn-primary" href="/editTheory/{{p.url}}">Edit</a>
+                                {% endif %}
+                                {% endif %}
+                            </div>
+                            <img alt="Card imag card-img-bottome" style="height:100%;width:100%" class="card-img" src="/media/{{p.image}}">
+                        </div>
+                    </div>
+                    {%endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</div>
+{%endblock%}
