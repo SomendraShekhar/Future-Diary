@@ -39,6 +39,10 @@ class Post(models.Model):
     url = models.CharField(max_length=100)
     cat = models.ForeignKey(Category, on_delete=models.CASCADE)
     image = models.ImageField(upload_to='post/')
+    like = models.ManyToManyField(User,related_name='likes_field',blank=True)
+
+    def total_likes(self):
+        return self.like.Count()
 
     def __str__(self):
         return self.title

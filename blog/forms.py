@@ -22,10 +22,6 @@ class NewUserForm(UserCreationForm):
 
 
 class CreatePostForm(forms.ModelForm):
-	class Meta:
-		model = Post
-		fields = ('user', 'post_id', 'title', 'content', 'url', 'cat', 'image')
-
 	def __init__(self, *args, **kwargs):
 		super(CreatePostForm, self).__init__(*args, **kwargs)
 		self.fields['user'].widget.attrs.update({'class': 'form-group'})
@@ -33,6 +29,13 @@ class CreatePostForm(forms.ModelForm):
 		self.fields['content'].widget.attrs.update({'class': 'form-group'})
 		self.fields['url'].widget.attrs.update({'class': 'form-group'})
 		self.fields['cat'].widget.attrs.update({'class': 'form-group'})
+
+	class Meta:
+		model = Post
+		fields = ('user', 'post_id', 'title', 'content', 'url', 'cat', 'image')
+
+
+
 
 
 class EditPostForm(forms.ModelForm):

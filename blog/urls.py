@@ -17,16 +17,17 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
-from .views import home, post, category, register_request, login_request, logout_request, create_post_request, edit_post_request,Edit_Mode_request
+from .views import home, post, category, register_request, login_request, logout_request, create_post_request, edit_post_request,Edit_Mode_request,like_request
 
 urlpatterns = [
-    path('', home),
-    path('Theory/<slug:url>', post),
+    path('', home,name="home"),
+    path('Theory/<slug:url>', post,name = "Theory"),
     path('category/<slug:url>', category),
     path("register", register_request),
     path("login", login_request),
     path("logout", logout_request),
     path("newTheory", create_post_request),
     path("editTheory/<slug:url>", edit_post_request),
-    path('editMode', Edit_Mode_request)
+    path('editMode', Edit_Mode_request),
+    path("likes/<slug:url>", like_request)
 ]

@@ -13,10 +13,14 @@ class CategoryAdmin(admin.ModelAdmin):
 
 
 class PostAdmin(admin.ModelAdmin):
-    list_display = ('title', 'cat', 'image','user',)
+    list_display = ('title', 'cat', 'image', 'user', 'get_likes')
     search_fields = ('title',)
     list_filter = ('cat',)
     list_per_page = 50
+
+    def get_likes(self, obj):
+        return len(obj.like.all())
+
 
     class Media:
         js = ('https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js', 'js/script.js',)

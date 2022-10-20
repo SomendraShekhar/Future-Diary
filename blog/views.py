@@ -5,7 +5,8 @@ from .forms import NewUserForm, CreatePostForm, EditPostForm
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
-
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 
 def home(request, inEditMode=False,user=""):
     if not inEditMode:
@@ -18,7 +19,7 @@ def home(request, inEditMode=False,user=""):
     data = {
         'posts': posts,
         'cats': cats,
-        'inEditMode': inEditMode
+        'inEditMode': inEditMode,
     }
     return render(request, 'home.html', data)
 
@@ -121,3 +122,22 @@ def edit_post_request(request, url):
 def Edit_Mode_request(request):
     user = request.user
     return home(request, inEditMode=True, user=user)
+
+
+def like_request(request, url):
+    post = Post.objects.get(url=url)
+    current_url = request.META.get('HTTP_REFERER')
+    current_url = current_url.split('/')
+    print(current_url)
+
+    if post.like.filter(id=request.user.id).exists():
+        post.like.remove(request.user)
+    else:
+        post.like.add(request.user)
+
+    if "Theory" in current_url:
+        urls = "/Theory/"+url
+        return redirect(urls)
+    else:
+        return HttpResponseRedirect(reverse('home'), False)
+

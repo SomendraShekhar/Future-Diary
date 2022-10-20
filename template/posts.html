@@ -12,6 +12,8 @@
             <p class="ml-5">( {{post.cat.title}} )</p>
             <img alt="" class="responsive-img mb-3" style="height:50%; width:100%;object-fit:contain" src="/media/{{post.image}}">
             <p class="ml-5" class="text-light">{{post.content|safe}}</p>
+            <a class="btn btn-primary" href="/likes/{{post.url}}">Like</a><span> &nbsp&nbsp{{post.like.count}}</span>
+
         </div>
         <div class="col-sm-4 col-lg-4">
             {% for cat in cats %}
