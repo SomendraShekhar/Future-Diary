@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% load crispy_forms_tags %}
+
+<!--Register-->
+{% if user.is_authenticated %}
+<div class="container py-5">
+    <h1>Create Theory</h1>
+    <form class="form-horizontal form_middle" enctype='multipart/form-data' method="POST">
+        {% csrf_token %}
+        {{create_post_form.media}}
+        {{ create_post_form|crispy }}
+        <button class="btn btn-primary mt-2" type="submit">submit</button>
+    </form>
+</div>
+{% else %}
+<h2 class="container py-5" > Please Login To Create Theory </h2>
+{% endif %}
+{% endblock %}
