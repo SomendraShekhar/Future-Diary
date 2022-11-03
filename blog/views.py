@@ -1,12 +1,13 @@
 from django.contrib.auth.models import User
-from blog.models import Post, Category
+from blog.models import Post, Category,Comment
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import NewUserForm, CreatePostForm, EditPostForm
+from .forms import NewUserForm, CreatePostForm, EditPostForm,commentForm
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+
 
 def home(request, inEditMode=False,user=""):
     if not inEditMode:
@@ -24,12 +25,12 @@ def home(request, inEditMode=False,user=""):
     return render(request, 'home.html', data)
 
 
-def post(request, url):
+def post(request, url, commentBox = False):
     post = Post.objects.get(url=url)
     cats = Category.objects.all()
 
     # print(post)
-    return render(request, 'posts.html', {'post': post, 'cats': cats})
+    return render(request, 'posts.html', {'post': post, 'cats': cats, 'commentBox': commentBox})
 
 
 def category(request, url):
@@ -91,19 +92,36 @@ def create_post_request(request):
     # if not request.user.is_staff or not request.user.is_superuser:
     #     raise Http404
     cats = Category.objects.all()
+
     if request.method == "POST":
+        url = request.POST['url']
+        title = request.POST['title']
+        content = request.POST['content']
+        cat = request.POST['cat']
+        urlExist = Post.objects.filter(url=url).exists()
+        if urlExist:
+            messages.error(request, "Url already exist, please try different URl more related to your Theory")
+            initialData = {
+                'user': request.user,
+                'title':title,
+                'content':content,
+                'cat':cat,
+                'url':url
+            }
+            form = CreatePostForm(initial=initialData)
+            return render(request=request, template_name="create_post.html",
+                          context={"create_post_form": form, 'cats': cats})
         form = CreatePostForm(request.POST or None, request.FILES or None)
         if form.is_valid():
-            instance = form.save()
+            instance = form.save(commit=False)
             instance.user = request.user
+            instance.save()
             messages.success(request, "Theory Created Successfully.")
             return redirect('/')
     initialData = {
         'user': request.user,
     }
-    print(request.user)
     form = CreatePostForm(initial=initialData)
-
     return render(request=request, template_name="create_post.html", context={"create_post_form": form,'cats':cats})
 
 
@@ -128,7 +146,6 @@ def like_request(request, url):
     post = Post.objects.get(url=url)
     current_url = request.META.get('HTTP_REFERER')
     current_url = current_url.split('/')
-    print(current_url)
 
     if post.like.filter(id=request.user.id).exists():
         post.like.remove(request.user)
@@ -140,4 +157,21 @@ def like_request(request, url):
         return redirect(urls)
     else:
         return HttpResponseRedirect(reverse('home'), False)
+
+
+def comment_request(request,url):
+    post = get_object_or_404(Post, url=url)
+    initialData = {
+        'commentedPost': get_object_or_404(Post, url=url),
+        'name': request.user,
+    }
+    form = commentForm(request.POST or None,initial=initialData)
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.commentedPost = post
+        comment.save()
+        messages.success(request, "comment added.")
+        urls = "/Theory/" + url
+        return redirect(urls)
+    return render(request, "comment.html", context={"comment_form": form})
 

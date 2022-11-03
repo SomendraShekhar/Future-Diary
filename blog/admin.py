@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Post
+from .models import Category, Post, Comment
 from django.contrib.auth.models import User
 
 # Register your models here.
@@ -11,6 +11,8 @@ class CategoryAdmin(admin.ModelAdmin):
     list_display = ('image_tag', 'title', 'description', 'url', 'add_date')
     search_fields = ('title',)
 
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('commentedPost','name','comm')
 
 class PostAdmin(admin.ModelAdmin):
     list_display = ('title', 'cat', 'image', 'user', 'get_likes')
@@ -29,3 +31,4 @@ class PostAdmin(admin.ModelAdmin):
 
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Post, PostAdmin)
+admin.site.register(Comment,CommentAdmin)
