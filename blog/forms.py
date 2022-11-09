@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from blog.models import Post
+from blog.models import Post,Comment
 
 
 # Create your forms here.
@@ -24,7 +24,6 @@ class NewUserForm(UserCreationForm):
 class CreatePostForm(forms.ModelForm):
 	def __init__(self, *args, **kwargs):
 		super(CreatePostForm, self).__init__(*args, **kwargs)
-		self.fields['user'].widget.attrs.update({'class': 'form-group'})
 		self.fields['title'].widget.attrs.update({'class': 'form-group'})
 		self.fields['content'].widget.attrs.update({'class': 'form-group'})
 		self.fields['url'].widget.attrs.update({'class': 'form-group'})
@@ -32,13 +31,18 @@ class CreatePostForm(forms.ModelForm):
 
 	class Meta:
 		model = Post
-		fields = ('user', 'post_id', 'title', 'content', 'url', 'cat', 'image')
-
-
-
+		fields = ('post_id', 'title', 'content', 'url', 'cat', 'image')
 
 
 class EditPostForm(forms.ModelForm):
 	class Meta:
 		model = Post
 		fields = ('title', 'content', 'cat', 'image')
+
+
+class commentForm(forms.ModelForm):
+	class Meta:
+		model = Comment
+		fields = ('name',  'comm')
+
+

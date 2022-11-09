@@ -1,7 +1,5 @@
 {%extends 'base.html' %}
-
 {%block title%} POST {%endblock%}
-
 {%block content%}
 
 
@@ -12,7 +10,23 @@
             <p class="ml-5">( {{post.cat.title}} )</p>
             <img alt="" class="responsive-img mb-3" style="height:50%; width:100%;object-fit:contain" src="/media/{{post.image}}">
             <p class="ml-5" class="text-light">{{post.content|safe}}</p>
+            {% if user.is_authenticated %}
             <a class="btn btn-primary" href="/likes/{{post.url}}">Like</a><span> &nbsp&nbsp{{post.like.count}}</span>
+            {% else %}
+            <div>Like</div><span> &nbsp&nbsp{{post.like.count}}</span>
+            {% endif %}
+            <hr>
+            <h3>Comments:</h3>
+            {% if not post.comments.all %}
+            <h4>No Comments yet <a href="{% url 'comment' post.url %}">Add one..</a></h4>
+            {% else %}
+            {% for comment in post.comments.all %}
+            <h5><strong>{{comment.name}}</strong></h5>
+            <p>{{ comment.comm }}</p>
+            {% endfor %}
+                        <a href="{% url 'comment' post.url %}" >Add More..</a>
+
+            {% endif %}
 
         </div>
         <div class="col-sm-4 col-lg-4">
@@ -32,5 +46,4 @@
         </div>
     </div>
 </div>
-
 {%endblock%}
