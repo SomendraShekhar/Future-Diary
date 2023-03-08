@@ -1,3 +1,7 @@
+from gettext import Catalog
+from turtle import pos, update
+from urllib import response
+from django import http
 from django.contrib.auth.models import User
 from blog.models import Post, Category,Comment
 from django.shortcuts import render, redirect, get_object_or_404
@@ -7,6 +11,137 @@ from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from rest_framework import generics,status
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .serializer import categorySerializer,postSerializer,commentSerializer,createCategorySerializer,createCommentSerializer,createPostSerializer,createRegisterSerializer, registerSerializer
+
+class catSerializerView(generics.ListCreateAPIView):
+    queryset = Category.objects.all()
+    serializer_class = categorySerializer
+
+class postSerializerView(generics.ListCreateAPIView):
+    queryset = Post.objects.all()
+    serializer_class = postSerializer
+
+class commSerializerView(generics.ListCreateAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = commentSerializer
+
+class registerSerializerView(generics.ListCreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = registerSerializer
+
+class createCatSerializerView(APIView):
+    serializer_class = createCategorySerializer
+    def post(self,request,format=None):
+        if not self.request.session.exists(self.request.session.session_key):
+            self.request.session.create()
+        serializer = self.serializer_class(data = request.data)
+        if serializer.is_valid():
+            cat_id = serializer.data.get('cat_id')
+            title = serializer.data.get('title')
+            description = serializer.data.get('description')
+            url = serializer.data.get('url')
+            image = serializer.data.get('image')
+            queryset = Category.objects.filter(cat_id = cat_id)
+            if queryset.exists():
+                category = queryset[0]
+                category.title = title
+                category.description = description
+                category.url = url
+                category.image = image
+                category.cat_id = cat_id
+                category.save(update_fields= ['cat_id','title','description','url','image'])
+                return Response(categorySerializer(category).data,status= status.HTTP_200_OK)
+            else:
+                category = Category(title=title,description=description,url=url,image=image)
+                category.save()
+                return Response(categorySerializer(category).data,status= status.HTTP_201_CREATED)
+        return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
+class createPostSerializerView(APIView):
+    serializer_class = createPostSerializer
+    def post(self,request,format=None):
+        if not self.request.session.exists(self.request.session.session_key):
+            self.request.session.create()
+        serializer = self.serializer_class(data = request.data)
+        if serializer.is_valid():
+            user = serializer.get('user')
+            post_id = serializer.get('post_id')
+            title = serializer.data.get('title')
+            content = serializer.data.get('content')
+            url = serializer.data.get('url')
+            image = serializer.data.get('image')
+            cat = serializer.data.get('cat')
+            like = serializer.data.get('like')
+            queryset = Post.objects.filter(url = url)
+            if queryset.exists():
+                post = queryset[0]
+                post.user = user
+                post.post_id = post_id
+                post.title = title
+                post.content = content
+                post.url = url
+                post.image = image
+                post.cat = cat
+                post.like = like
+                post.save(update_fields= ['post_id','title','content','url','image','cat','like'])
+                return Response(postSerializer(post).data,status= status.HTTP_201_CREATED)
+            else:
+                post = Post(post_id=post_id,title=title,content=content,url=url,image=image,cat=cat,like=like)
+                post.save()
+                return Response(postSerializer(post).data,status= status.HTTP_201_CREATED)
+        return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
+
+class createCommSerializerView(APIView):
+    serializer_class = createCommentSerializer
+    def post(self,request,format=None):
+        if not self.request.session.exists(self.request.session.session_key):
+            self.request.session.create()
+        serializer = self.serializer_class(data = request.data)
+        if serializer.is_valid():
+            commentedPost = serializer.get('commentedPost')
+            name = serializer.data.get('name')
+            comm = serializer.data.get('comm')
+            queryset = Comment.objects.filter(commentedPost = commentedPost)
+            if queryset.exists():
+                comme = queryset[0]
+                comme.commentedPost = commentedPost
+                comme.name = name
+                comme.comm = comm
+                comme.save(update_fields= ['post_id','title','content','url','image','cat','like'])
+                return Response(commentSerializer(comme).data,status= status.HTTP_201_CREATED)
+            else:
+                post = Comment(commentedPost=commentedPost,name=name,comm=comm)
+                post.save()
+                return Response(commentSerializer(post).data,status= status.HTTP_201_CREATED)
+        return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
+
+class createRegisterSerializerView(APIView):
+    serializer_class = createRegisterSerializer
+    def post(self,request,format=None):
+        if not self.request.session.exists(self.request.session.session_key):
+            self.request.session.create()
+        serializer = self.serializer_class(data=request.data)
+        print(serializer)
+        if serializer.is_valid():
+            username = serializer.data.get('username')
+            password = serializer.data.get('password')
+            email = serializer.data.get('email')
+            userCheck = User.objects.filter(username = username)
+            emailCheck = User.objects.filter(email = email)
+            if userCheck:
+                return "user already exist"
+            elif emailCheck:
+                return "email already exist"
+            else:
+                user = User(username = username,password = password, email = email)
+                user.save()
+                return Response(registerSerializer(user).data,status= status.HTTP_201_CREATED)
+        return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
+
+            
+
 
 
 def home(request, inEditMode=False,user=""):
