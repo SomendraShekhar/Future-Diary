@@ -14,7 +14,7 @@ from django.urls import reverse
 from rest_framework import generics,status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializer import categorySerializer,postSerializer,commentSerializer,createCategorySerializer,createCommentSerializer,createPostSerializer,createRegisterSerializer, registerSerializer
+from .serializer import categorySerializer,postSerializer,commentSerializer,createCategorySerializer,createCommentSerializer,createPostSerializer,createRegisterSerializer,registerSerializer,loginSerializer
 
 class catSerializerView(generics.ListCreateAPIView):
     queryset = Category.objects.all()
@@ -31,6 +31,9 @@ class commSerializerView(generics.ListCreateAPIView):
 class registerSerializerView(generics.ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = registerSerializer
+
+class loginSerializerView(generics.ListCreateAPIView):
+    pass
 
 class createCatSerializerView(APIView):
     serializer_class = createCategorySerializer
@@ -123,7 +126,6 @@ class createRegisterSerializerView(APIView):
         if not self.request.session.exists(self.request.session.session_key):
             self.request.session.create()
         serializer = self.serializer_class(data=request.data)
-        print(serializer)
         if serializer.is_valid():
             username = serializer.data.get('username')
             password = serializer.data.get('password')
@@ -131,16 +133,34 @@ class createRegisterSerializerView(APIView):
             userCheck = User.objects.filter(username = username)
             emailCheck = User.objects.filter(email = email)
             if userCheck:
-                return "user already exist"
+                return Response({'Bad Request': 'User already exist'}, status=status.HTTP_400_BAD_REQUEST)
             elif emailCheck:
-                return "email already exist"
+                return Response({'Bad Request': 'Email already exist'}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 user = User(username = username,password = password, email = email)
                 user.save()
                 return Response(registerSerializer(user).data,status= status.HTTP_201_CREATED)
         return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
 
-            
+class checkLoginUser(APIView):
+    serializer_class = loginSerializer
+    def post(self,request,format=None):
+        if not self.request.session.exists(self.request.session.session_key):
+            self.request.session.create()
+        serializer = self.serializer_class(data = request.data)
+        if serializer.is_valid():
+            email = serializer.data.get('email')
+            password = serializer.data.get('password')
+            user = authenticate(email=email, password=password)
+            if user is not None:
+                login(request, user)
+                messages.info(request, f"You are now logged in as {email}.")
+                return redirect('/')
+            else:
+                messages.error(request, "Invalid username or password.")
+
+    
+        
 
 
 

@@ -28,8 +28,6 @@ urlpatterns = [
     path('create-comm', createCommSerializerView.as_view()),
     path('register',registerSerializerView.as_view()),
     path('create-register',createRegisterSerializerView.as_view())
-
-    
 ]
 # urlpatterns = [
 #     path('', home,name="home"),

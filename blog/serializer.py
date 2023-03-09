@@ -43,4 +43,14 @@ class createRegisterSerializer(serializers.ModelSerializer):
         model = User 
         fields = ('username','password','email')
 
+class loginSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User 
+        fields = ('password','email')
+
+class createLoginSerializer(serializers.ModelSerializer):
+     class Meta:
+        model = User 
+        fields = ('password','email')
+
 
